@@ -1,0 +1,30 @@
+SELECT konyvek.id, konyvek.cim, konyvek.kiadasi_ev,
+             konyvek.oldalszam,konyvek.kolcsonozheto,mufajok.nev
+             FROM konyvek,mufajok WHERE konyvek.mufaj_id = mufajok.id  
+             ORDER By konyvek.kiadasi_ev ASC;
+
+
+
+SELECT konyvek.id, konyvek.mufaj_id, konyvek.cim, 
+            konyvek.kiadasi_ev, konyvek.oldalszam, 
+            konyvek.kolcsonozheto FROM konyvek 
+            WHERE konyvek.kolcsonozheto = 1 AND konyvek.kiadasi_ev < 2000;
+
+
+
+SELECT konyvek.id, konyvek.mufaj_id, konyvek.cim, konyvek.kiadasi_ev,
+            konyvek.oldalszam, konyvek.kolcsonozheto FROM konyvek 
+            WHERE konyvek.cim LIKE "%sátán%";
+
+
+
+SELECT mufajok.nev, COUNT(konyvek.id), 
+            ROUND(AVG(konyvek.oldalszam))
+             FROM mufajok, konyvek WHERE mufajok.id = konyvek.mufaj_id GROUP BY mufajok.nev;
+
+
+
+
+SELECT konyvek.cim,konyvek.kiadasi_ev,konyvek.oldalszam
+             FROM konyvek WHERE konyvek.oldalszam > 400 
+             ORDER BY konyvek.oldalszam DESC;
