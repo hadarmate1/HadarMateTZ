@@ -104,6 +104,82 @@ app.get("/api/konyvek/hosszuak", async (req, res) => {
         res.status(500).json({ hiba: "Adatbázis hiba" });
     }
 });
+app.post("/api/konyvek", async (req, res) => {
+    try {
+        const { mufaj_id, cim, kiadasi_ev, oldalszam, kolcsonozheto } = req.body;
+
+        const [adatok] = await pool.query(
+            `INSERT INTO konyvek 
+            (mufaj_id, cim, kiadasi_ev, oldalszam, kolcsonozheto)
+            VALUES (?, ?, ?, ?, ?)`,
+            [mufaj_id, cim, kiadasi_ev, oldalszam, kolcsonozheto]
+        );
+
+        res.status(201).json({
+            uzenet: "Sikeres hozzáadás!",
+            id: adatok.insertId
+        });
+
+    } catch (hiba) {
+        console.log(hiba);
+        res.status(500).json({ hiba: hiba.message });
+    }
+});
+app.delete("/api/konyvek/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const [adatok] = await pool.query(
+            "DELETE FROM konyvek WHERE id = ?",
+            [id]
+        );
+
+        if (adatok.affectedRows === 0) {
+            return res.status(404).json({
+                hiba: "Nincs ilyen könyv!"
+            });
+        }
+
+        res.status(200).json({
+            uzenet: "Sikeres törlés!"
+        });
+
+    } catch (hiba) {
+        console.log(hiba);
+        res.status(500).json({ hiba: hiba.message });
+    }
+});
+app.patch("/api/konyvek/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const cim = req.body.cim;
+
+        console.log("Kapott ID:", id);
+        console.log("Kapott cím:", cim);
+
+        const [eredmeny] = await pool.query(
+            "UPDATE konyvek SET cim = ? WHERE id = ?",
+            [cim, id]
+        );
+
+        if (eredmeny.affectedRows === 0) {
+            return res.status(404).json({
+                hiba: "Nincs ilyen könyv!"
+            });
+        }
+
+        res.status(200).json({
+            uzenet: "Sikeres módosítás!"
+        });
+
+    } catch (hiba) {
+        console.log("ADATBAZIS HIBA:", hiba);
+
+        res.status(500).json({
+            hiba: hiba.message
+        });
+    }
+});
 app.listen(PORT, () => {
     console.log("A szerver fut: http://localhost:" + PORT);
 });
