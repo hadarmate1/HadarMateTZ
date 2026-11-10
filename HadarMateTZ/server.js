@@ -125,6 +125,24 @@ app.post("/api/konyvek", async (req, res) => {
         res.status(500).json({ hiba: hiba.message });
     }
 });
+app.post("/api/mufajok", async (req, res) => {
+    try {
+        const { nev } = req.body;
+
+        const [adatok] = await pool.query(
+            "INSERT INTO mufajok (nev) VALUES (?)",
+            [nev]
+        );
+
+        res.status(201).json({
+            uzenet: "Sikeres hozzáadás!",
+            id: adatok.insertId
+        });
+
+    } catch (hiba) {
+        res.status(500).json({ hiba: hiba.message });
+    }
+});
 app.delete("/api/konyvek/:id", async (req, res) => {
     try {
         const id = req.params.id;
@@ -146,6 +164,29 @@ app.delete("/api/konyvek/:id", async (req, res) => {
 
     } catch (hiba) {
         console.log(hiba);
+        res.status(500).json({ hiba: hiba.message });
+    }
+});
+app.delete("/api/mufajok/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const [adatok] = await pool.query(
+            "DELETE FROM mufajok WHERE id = ?",
+            [id]
+        );
+
+        if (adatok.affectedRows === 0) {
+            return res.status(404).json({
+                hiba: "Nincs ilyen műfaj!"
+            });
+        }
+
+        res.status(200).json({
+            uzenet: "Sikeres törlés!"
+        });
+
+    } catch (hiba) {
         res.status(500).json({ hiba: hiba.message });
     }
 });
@@ -178,6 +219,30 @@ app.patch("/api/konyvek/:id", async (req, res) => {
         res.status(500).json({
             hiba: hiba.message
         });
+    }
+});
+app.patch("/api/konyvek/oldalszam/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const oldalszam = req.body.oldalszam;
+
+        const [adatok] = await pool.query(
+            "UPDATE konyvek SET oldalszam = ? WHERE id = ?",
+            [oldalszam, id]
+        );
+
+        if (adatok.affectedRows === 0) {
+            return res.status(404).json({
+                hiba: "Nincs ilyen könyv!"
+            });
+        }
+
+        res.status(200).json({
+            uzenet: "Oldalszám sikeresen módosítva!"
+        });
+
+    } catch (hiba) {
+        res.status(500).json({ hiba: hiba.message });
     }
 });
 app.listen(PORT, () => {
